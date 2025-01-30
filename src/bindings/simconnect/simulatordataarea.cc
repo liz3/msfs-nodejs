@@ -68,11 +68,7 @@ Napi::Value SimulatorDataArea::addDataDefinition(const Napi::CallbackInfo& info)
             .ThrowAsJavaScriptException();
         return env.Null();
     }
-    if (!definitionJS.Has("unit") || !definitionJS.Get("unit").IsString()) {
-        Napi::TypeError::New(env, "Property not found or invalid. 'unit' needs to be defined as a string")
-            .ThrowAsJavaScriptException();
-        return env.Null();
-    }
+
     if (!definitionJS.Has("memberName") || !definitionJS.Get("memberName").IsString()) {
         Napi::TypeError::New(env, "Property not found or invalid. 'memberName' needs to be defined as a string")
             .ThrowAsJavaScriptException();
@@ -82,11 +78,12 @@ Napi::Value SimulatorDataArea::addDataDefinition(const Napi::CallbackInfo& info)
     struct SimulatorDataDefinition definition;
     definition.type = static_cast<SIMCONNECT_DATATYPE>(definitionJS.Get("type").As<Napi::Number>().Uint32Value());
     definition.name = definitionJS.Get("name").As<Napi::String>().Utf8Value();
-    definition.unit = definitionJS.Get("unit").As<Napi::String>().Utf8Value();
+    if(definitionJS.Has("unit") && definitionJS.Get("unit").IsString())
+        definition.unit = definitionJS.Get("unit").As<Napi::String>().Utf8Value();
     definition.memberName = definitionJS.Get("memberName").As<Napi::String>().Utf8Value();
 
     HRESULT result = SimConnect_AddToDataDefinition(this->_connection->simConnect(), this->_id, definition.name.c_str(),
-                                                    definition.unit.c_str());
+                                                    definitionJS.Has("unit") && definitionJS.Get("unit").IsString() ? definition.unit.c_str() : nullptr, definition.type);
     if (result != S_OK) {
         this->_lastError = "Unable to add the data definition";
         return Napi::Boolean::New(env, false);

@@ -193,9 +193,14 @@ Napi::Value Dispatcher::requestSimulatorDataForId(const Napi::CallbackInfo& info
 
 
     auto retval = simulatorDataArea->requestDataForId(this->_requestId++, period, objectId);
-    // if (retval) {
-    //     this->_requestedSimulatorDataArea.push_back(simulatorDataArea);
-    // }
+    if (retval) {
+      for (auto area : this->_requestedSimulatorDataArea) {
+        if (area->id() == simulatorDataArea->id()) {
+            return Napi::Boolean::New(env, retval);
+        }
+    }
+        this->_requestedSimulatorDataArea.push_back(simulatorDataArea);
+    }
 
     return Napi::Boolean::New(env, retval);
 }
@@ -408,27 +413,27 @@ Napi::Object Dispatcher::convertSimulatorDataArea(Napi::Env env, SIMCONNECT_RECV
             offset += sizeof(std::int64_t);
             break;
         case SIMCONNECT_DATATYPE_STRING8:
-            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], (char*)&data[offset + 8])));
+            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], strlen((char*)&data[offset]))));
             offset += 8;
             break;
         case SIMCONNECT_DATATYPE_STRING32:
-            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], (char*)&data[offset + 32])));
+            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], strlen((char*)&data[offset]))));
             offset += 32;
             break;
         case SIMCONNECT_DATATYPE_STRING64:
-            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], (char*)&data[offset + 64])));
+            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], strlen((char*)&data[offset]))));
             offset += 64;
             break;
         case SIMCONNECT_DATATYPE_STRING128:
-            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], (char*)&data[offset + 128])));
+            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], strlen((char*)&data[offset]))));
             offset += 128;
             break;
         case SIMCONNECT_DATATYPE_STRING256:
-            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], (char*)&data[offset + 256])));
+            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], strlen((char*)&data[offset]))));
             offset += 256;
             break;
         case SIMCONNECT_DATATYPE_STRING260:
-            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], (char*)&data[offset + 260])));
+            object.Set(Napi::String::New(env, entry.memberName), Napi::String::New(env, std::string((char*)&data[offset], strlen((char*)&data[offset]))));
             offset += 260;
             break;
         case SIMCONNECT_DATATYPE_STRINGV: {
@@ -586,6 +591,7 @@ Napi::Value Dispatcher::nextDispatch(const Napi::CallbackInfo& info) {
 
                 Napi::Object dataObject = Napi::Object::New(env);
                 dataObject.Set(Napi::String::New(env, "definitionId"), Napi::Number::New(env, area->id()));
+                                dataObject.Set(Napi::String::New(env, "objectId"), Napi::Number::New(env, data->dwObjectID));
                 Napi::Object content = Napi::Object::New(env);
                 dataObject.Set(Napi::String::New(env, "content"), this->convertSimulatorDataArea(env, receiveData, size, array, area->dataDefinitions()));
 
