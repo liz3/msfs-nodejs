@@ -49,6 +49,7 @@ namespace simconnect {
          * @return True if the entries are requested, else false
          */
         Napi::Value requestSimulatorData(const Napi::CallbackInfo& info);
+        Napi::Value requestSimulatorDataForId(const Napi::CallbackInfo& info);
         /**
          * @brief Subscribes to a system event of SystemEvent
          * @param info The information block with the SystemEvent

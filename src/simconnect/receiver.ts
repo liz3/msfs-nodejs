@@ -97,6 +97,10 @@ export class Receiver {
         return this.dispatcher.requestSimulatorData(simulatorData, period);
     }
 
+    public requestSimulatorDataForId(simulatorData: SimulatorDataArea, period: SimulatorDataPeriod, objectId: number): boolean {
+        return this.dispatcher.requestSimulatorDataForId(simulatorData, period, objectId);
+    }
+
     public subscribeSystemEvent(systemEvent: SystemEvent): boolean {
         return this.dispatcher.subscribeSystemEvent(systemEvent);
     }

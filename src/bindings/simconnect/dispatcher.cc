@@ -162,6 +162,44 @@ Napi::Value Dispatcher::requestSimulatorData(const Napi::CallbackInfo& info) {
     return Napi::Boolean::New(env, retval);
 }
 
+Napi::Value Dispatcher::requestSimulatorDataForId(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (this->_connection->isConnected() == false) {
+        Napi::Error::New(env, "Not connected to the server").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (info.Length() != 3) {
+        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    if (!info[0].IsObject()) {
+        Napi::TypeError::New(env, "Invalid argument type. 'simulatorDataArea' must be an object of type SimulatorDataArea").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    if (!info[1].IsNumber()) {
+        Napi::TypeError::New(env, "Invalid argument type. 'period' must be a number").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    if (!info[2].IsNumber()) {
+        Napi::TypeError::New(env, "Invalid argument type. 'objectId' must be a number").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    auto simulatorDataArea = Napi::ObjectWrap<SimulatorDataArea>::Unwrap(info[0].As<Napi::Object>());
+    const auto period = static_cast<SIMCONNECT_PERIOD>(info[1].As<Napi::Number>().Uint32Value());
+    const auto objectId = static_cast<int32_t>(info[2].As<Napi::Number>().Uint32Value());
+
+
+    auto retval = simulatorDataArea->requestDataForId(this->_requestId++, period, objectId);
+    // if (retval) {
+    //     this->_requestedSimulatorDataArea.push_back(simulatorDataArea);
+    // }
+
+    return Napi::Boolean::New(env, retval);
+}
+
 Napi::Value Dispatcher::subscribeSystemEvent(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
@@ -626,6 +664,7 @@ Napi::Object Dispatcher::initialize(Napi::Env env, Napi::Object exports) {
     Napi::Function func = DefineClass(env, "DispatcherBindings", {
         InstanceMethod<&Dispatcher::requestClientData>("requestClientData", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Dispatcher::requestSimulatorData>("requestSimulatorData", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
+        InstanceMethod<&Dispatcher::requestSimulatorDataForId>("requestSimulatorDataForId", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Dispatcher::subscribeSystemEvent>("subscribeSystemEvent", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Dispatcher::unsubscribeSystemEvent>("unsubscribeSystemEvent", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Dispatcher::nextDispatch>("nextDispatch", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),

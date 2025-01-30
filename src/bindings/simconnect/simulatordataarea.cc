@@ -105,6 +105,18 @@ bool SimulatorDataArea::requestData(SIMCONNECT_DATA_REQUEST_ID requestId, SIMCON
     return this->updateRequestData(period);
 }
 
+bool SimulatorDataArea::requestDataForId(SIMCONNECT_DATA_REQUEST_ID requestId, SIMCONNECT_PERIOD period, int32_t objectId) {
+    this->_requestId = requestId;
+    HRESULT result = SimConnect_RequestDataOnSimObject(this->_connection->simConnect(), this->_requestId,
+                                                       this->_id, objectId, period);
+    if (result != S_OK) {
+        this->_lastError = "Unable to request the simulator data";
+        return false;
+    }
+
+    return true;
+}
+
 bool SimulatorDataArea::updateRequestData(SIMCONNECT_PERIOD period) {
     HRESULT result = SimConnect_RequestDataOnSimObject(this->_connection->simConnect(), this->_requestId,
                                                        this->_id, SIMCONNECT_OBJECT_ID_USER, period);

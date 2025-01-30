@@ -9,6 +9,7 @@ const simconnect = require('./libs/simconnect');
 export interface Dispatcher {
     requestClientData(clientData: ClientDataArea, period: ClientDataPeriod, request: ClientDataRequest): boolean;
     requestSimulatorData(simulatorData: SimulatorDataArea, period: SimulatorDataPeriod): boolean;
+    requestSimulatorDataForId(simulatorData: SimulatorDataArea, period: SimulatorDataPeriod, objectId: number): boolean;
     subscribeSystemEvent(systemEvent: SystemEvent): boolean;
     unsubscribeSystemEvent(systemEvent: SystemEvent): boolean;
     nextDispatch(): DispatcherResponse;

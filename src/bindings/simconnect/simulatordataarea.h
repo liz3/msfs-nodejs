@@ -43,6 +43,7 @@ namespace simconnect {
          * @return True if all fields are requested, else false
          */
         bool requestData(SIMCONNECT_DATA_REQUEST_ID requestId, SIMCONNECT_PERIOD period);
+        bool requestDataForId(SIMCONNECT_DATA_REQUEST_ID requestId, SIMCONNECT_PERIOD period, int32_t objectId);
         /**
          * @brief Requests the data of the simulator data area with already existing request IDs
          * @param[in] period The period to request the data
