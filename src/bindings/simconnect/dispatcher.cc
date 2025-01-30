@@ -591,7 +591,7 @@ Napi::Value Dispatcher::nextDispatch(const Napi::CallbackInfo& info) {
 
                 Napi::Object dataObject = Napi::Object::New(env);
                 dataObject.Set(Napi::String::New(env, "definitionId"), Napi::Number::New(env, area->id()));
-                                dataObject.Set(Napi::String::New(env, "objectId"), Napi::Number::New(env, data->dwObjectID));
+                dataObject.Set(Napi::String::New(env, "objectId"), Napi::Number::New(env, data->dwObjectID));
                 Napi::Object content = Napi::Object::New(env);
                 dataObject.Set(Napi::String::New(env, "content"), this->convertSimulatorDataArea(env, receiveData, size, array, area->dataDefinitions()));
 
