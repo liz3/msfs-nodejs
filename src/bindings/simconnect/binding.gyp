@@ -22,12 +22,12 @@
       "cflags_cc!": [ "-fno-exceptions" ],
       "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
       "include_dirs": [
-        "E:\\MSFS SDK\\SimConnect SDK\\include",
+        "C:\\MSFS SDK\\SimConnect SDK\\include",
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
       "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")"],
       "libraries": [
-        "E:\\MSFS SDK\\SimConnect SDK\\lib\\static\\SimConnect.lib",
+        "C:\\MSFS SDK\\SimConnect SDK\\lib\\static\\SimConnect.lib",
       ]
     }
   ],
