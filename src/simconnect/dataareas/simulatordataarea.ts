@@ -1,4 +1,4 @@
-    import { Connection } from '../connection';
+import { Connection } from '../connection';
 import { SimulatorDataDefinition } from '../types';
 
 const simconnect = require('./libs/simconnect');
