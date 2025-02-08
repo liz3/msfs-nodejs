@@ -138,10 +138,81 @@ Napi::Value Connection::lastError(const Napi::CallbackInfo& info) {
     return Napi::String::New(env, this->_lastError);
 }
 
+Napi::Value Connection::mapClientEvent(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() != 2) {
+        Napi::TypeError::New(env, "Parameters not given").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[0].IsNumber()) {
+        Napi::TypeError::New(env, "First arg needs to be a number").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[1].IsString()) {
+        Napi::TypeError::New(env, "second arg needs to be a std::string").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    uint32_t id = info[0].As<Napi::Number>().Uint32Value();
+    std::string name = info[1].As<Napi::String>().Utf8Value();
+
+    if(!    ())
+        return Napi::Boolean::New(env, false);
+
+    if(mapped_events.count(id))
+        return Napi::Boolean::New(env, false);
+
+    SimConnect_MapClientEventToSimEvent(_simConnect, id, name.c_str());
+    mapped_events[id] = name;
+
+    return Napi::Boolean::New(env, true);
+}
+
+Napi::Value Connection::transmitClientEvent(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+
+    if (info.Length() != 2) {
+        Napi::TypeError::New(env, "Parameters not given").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[0].IsNumber()) {
+        Napi::TypeError::New(env, "First arg needs to be a number").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[1].IsNumber()) {
+        Napi::TypeError::New(env, "second arg needs to be a number").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+       if(!isConnected())
+        return Napi::Boolean::New(env, false);
+
+    uint32_t id = info[0].As<Napi::Number>().Uint32Value();
+    double v = info[1].As<Napi::Number>().DoubleValue();
+    if(!mapped_events.count(id))
+        return Napi::Boolean::New(env, false);
+    HRESULT hr = SimConnect_TransmitClientEvent(
+        _simConnect,
+        SIMCONNECT_OBJECT_ID_USER,
+        id,
+        static_cast<DWORD>(v), // Convert QNH to FS2020 internal format
+        SIMCONNECT_GROUP_PRIORITY_HIGHEST,
+        SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY
+    );
+    return Napi::Boolean::New(env, hr == S_OK);
+}
+
+
 Napi::Object Connection::initialize(Napi::Env env, Napi::Object exports) {
     Napi::Function func = DefineClass(env, "ConnectionBindings", {
         InstanceMethod<&Connection::open>("open", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Connection::close>("close", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
+        InstanceMethod<&Connection::mapClientEvent>("mapClientEvent", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
+        InstanceMethod<&Connection::transmitClientEvent>("transmitClientEvent", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Connection::isConnected>("isConnected", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
         InstanceMethod<&Connection::lastError>("lastError", static_cast<napi_property_attributes>(napi_writable | napi_configurable)),
     });

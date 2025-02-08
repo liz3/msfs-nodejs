@@ -5,6 +5,7 @@
 
 #include <string>
 #include <list>
+#include <unordered_map>
 
 #include <napi.h>
 #include <Windows.h>
@@ -23,6 +24,7 @@ namespace simconnect {
         std::list<SIMCONNECT_CLIENT_DATA_ID> _clientDataIds;
         std::list<SIMCONNECT_DATA_DEFINITION_ID> _simulatorDataIds;
         std::list<std::uint32_t> _systemEventIds;
+        std::unordered_map<int32_t, std::string> mapped_events;
 
         void close();
 
@@ -85,6 +87,9 @@ namespace simconnect {
          * @throw Excpetions if the arguments do not match
          */
         Napi::Value open(const Napi::CallbackInfo& info);
+
+        Napi::Value transmitClientEvent(const Napi::CallbackInfo& info);
+        Napi::Value mapClientEvent(const Napi::CallbackInfo& info);
         /**
          * @brief Closes a SimConnect connection
          * @param info The parameter block without additional parameters
